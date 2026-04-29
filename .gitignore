@@ -1,0 +1,27 @@
+# PDF del enunciado
+ejerciciomuycomplejo.pdf
+
+# Binarios y objetos C
+app
+app.exe
+*.o
+*.obj
+*.out
+
+# Librerias/artefactos de compilacion
+*.a
+*.so
+*.dll
+*.lib
+
+# Archivos temporales/editores
+*.tmp
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# Logs y metadatos del sistema
+*.log
+.DS_Store
+Thumbs.db
