@@ -2,81 +2,83 @@
 
 #include <stdlib.h>
 
-static int buscarIndicePrioridad(TCOLAPRIO tcp, int prioridad)
+static int find_priority_index(priority_queue_t priority_queue, int priority)
 {
-    int izq = 0;
-    int der = NUM_COLAS_PRIO - 1;
+    int left = 0;
+    int right = PRIORITY_QUEUE_COUNT - 1;
 
-    while (izq <= der)
+    while (left <= right)
     {
-        int medio = izq + (der - izq) / 2;
-        int p = tcp[medio].prioridad;
+        int middle = left + (right - left) / 2;
+        int current_priority = priority_queue[middle].prioridad;
 
-        if (p == prioridad)
+        if (current_priority == priority)
         {
-            return medio;
+            return middle;
         }
-        if (p < prioridad)
+        if (current_priority < priority)
         {
-            izq = medio + 1;
+            left = middle + 1;
         }
         else
         {
-            der = medio - 1;
+            right = middle - 1;
         }
     }
 
     return -1;
 }
 
-TCOLAPRIO crearColaPrio(const int prioridades[NUM_COLAS_PRIO])
+priority_queue_t priority_queue_create(const int priorities[PRIORITY_QUEUE_COUNT])
 {
-    int i;
-    ColaIndividual *tcp = (ColaIndividual *)malloc(sizeof(ColaIndividual) * NUM_COLAS_PRIO);
-    if (tcp == NULL)
+    int index;
+    priority_queue_bucket_t *priority_queue =
+        (priority_queue_bucket_t *)malloc(sizeof(priority_queue_bucket_t) * PRIORITY_QUEUE_COUNT);
+
+    if (priority_queue == NULL)
     {
         return NULL;
     }
 
-    for (i = 0; i < NUM_COLAS_PRIO; i++)
+    for (index = 0; index < PRIORITY_QUEUE_COUNT; index++)
     {
-        tcp[i].prioridad = prioridades[i];
-        inicializarCola(&tcp[i].cola);
+        priority_queue[index].prioridad = priorities[index];
+        queue_init(&priority_queue[index].queue);
     }
 
-    return tcp;
+    return priority_queue;
 }
 
-void destruirColaPrio(TCOLAPRIO *tcp)
+void priority_queue_destroy(priority_queue_t *priority_queue)
 {
-    int i;
+    int index;
 
-    if (tcp == NULL || *tcp == NULL)
+    if (priority_queue == NULL || *priority_queue == NULL)
     {
         return;
     }
 
-    for (i = 0; i < NUM_COLAS_PRIO; i++)
+    for (index = 0; index < PRIORITY_QUEUE_COUNT; index++)
     {
-        liberarCola(&(*tcp)[i].cola);
+        queue_free(&(*priority_queue)[index].queue);
     }
 
-    free(*tcp);
-    *tcp = NULL;
+    free(*priority_queue);
+    *priority_queue = NULL;
 }
 
-int EsColaVaciaPrio(TCOLAPRIO tcp)
+int priority_queue_is_empty(priority_queue_t priority_queue)
 {
-    int i;
+    int index;
 
-    if (tcp == NULL)
+    if (priority_queue == NULL)
     {
         return 1;
     }
 
-    for (i = NUM_COLAS_PRIO - 1; i >= 0; i--)
+    for (index = PRIORITY_QUEUE_COUNT - 1; index >= 0; index--)
     {
-        if (!esColaVacia(&tcp[i].cola))
+        if (!queue_is_empty(&priority_queue[index].queue))
         {
             return 0;
         }
@@ -84,60 +86,60 @@ int EsColaVaciaPrio(TCOLAPRIO tcp)
     return 1;
 }
 
-int primeroColaPrio(TCOLAPRIO tcp, PID *proceso)
+int priority_queue_peek(priority_queue_t priority_queue, process_id_t *process)
 {
-    int i;
+    int index;
 
-    if (tcp == NULL || proceso == NULL)
+    if (priority_queue == NULL || process == NULL)
     {
         return 0;
     }
 
-    for (i = NUM_COLAS_PRIO - 1; i >= 0; i--)
+    for (index = PRIORITY_QUEUE_COUNT - 1; index >= 0; index--)
     {
-        if (!esColaVacia(&tcp[i].cola))
+        if (!queue_is_empty(&priority_queue[index].queue))
         {
-            return primeroCola(&tcp[i].cola, proceso);
+            return queue_peek(&priority_queue[index].queue, process);
         }
     }
 
     return 0;
 }
 
-int eliminarColaPrio(TCOLAPRIO tcp)
+int priority_queue_pop(priority_queue_t priority_queue)
 {
-    int i;
+    int index;
 
-    if (tcp == NULL)
+    if (priority_queue == NULL)
     {
         return 0;
     }
 
-    for (i = NUM_COLAS_PRIO - 1; i >= 0; i--)
+    for (index = PRIORITY_QUEUE_COUNT - 1; index >= 0; index--)
     {
-        if (!esColaVacia(&tcp[i].cola))
+        if (!queue_is_empty(&priority_queue[index].queue))
         {
-            return desencolar(&tcp[i].cola, NULL);
+            return queue_dequeue(&priority_queue[index].queue, NULL);
         }
     }
 
     return 0;
 }
 
-int anadirColaPrio(TCOLAPRIO tcp, PID proceso, int prioridad)
+int priority_queue_push(priority_queue_t priority_queue, process_id_t process, int priority)
 {
-    int indice;
+    int index;
 
-    if (tcp == NULL)
+    if (priority_queue == NULL)
     {
         return 0;
     }
 
-    indice = buscarIndicePrioridad(tcp, prioridad);
-    if (indice < 0)
+    index = find_priority_index(priority_queue, priority);
+    if (index < 0)
     {
         return 0;
     }
 
-    return encolar(&tcp[indice].cola, proceso);
+    return queue_enqueue(&priority_queue[index].queue, process);
 }

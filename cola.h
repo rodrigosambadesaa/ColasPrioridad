@@ -3,26 +3,26 @@
 
 #include <stddef.h>
 
-typedef long PID;
+typedef long process_id_t;
 
 typedef struct nodo_cola
 {
-    PID valor;
+    process_id_t value;
     struct nodo_cola *sig;
-} NodoCola;
+} queue_node_t;
 
 typedef struct
 {
-    NodoCola *frente;
-    NodoCola *fondo;
-    size_t tam;
-} TCola;
+    queue_node_t *head;
+    queue_node_t *tail;
+    size_t size;
+} queue_t;
 
-void inicializarCola(TCola *c);
-int esColaVacia(const TCola *c);
-int encolar(TCola *c, PID valor);
-int primeroCola(const TCola *c, PID *valor);
-int desencolar(TCola *c, PID *valor);
-void liberarCola(TCola *c);
+void queue_init(queue_t *queue);
+int queue_is_empty(const queue_t *queue);
+int queue_enqueue(queue_t *queue, process_id_t value);
+int queue_peek(const queue_t *queue, process_id_t *value);
+int queue_dequeue(queue_t *queue, process_id_t *value);
+void queue_free(queue_t *queue);
 
 #endif

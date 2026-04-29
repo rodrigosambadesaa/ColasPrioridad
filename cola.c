@@ -2,88 +2,88 @@
 
 #include <stdlib.h>
 
-void inicializarCola(TCola *c)
+void queue_init(queue_t *queue)
 {
-    c->frente = NULL;
-    c->fondo = NULL;
-    c->tam = 0;
+    queue->head = NULL;
+    queue->tail = NULL;
+    queue->size = 0;
 }
 
-int esColaVacia(const TCola *c)
+int queue_is_empty(const queue_t *queue)
 {
-    return c->frente == NULL;
+    return queue->head == NULL;
 }
 
-int encolar(TCola *c, PID valor)
+int queue_enqueue(queue_t *queue, process_id_t value)
 {
-    NodoCola *nuevo = (NodoCola *)malloc(sizeof(NodoCola));
-    if (nuevo == NULL)
+    queue_node_t *new_node = (queue_node_t *)malloc(sizeof(queue_node_t));
+    if (new_node == NULL)
     {
         return 0;
     }
 
-    nuevo->valor = valor;
-    nuevo->sig = NULL;
+    new_node->value = value;
+    new_node->sig = NULL;
 
-    if (c->fondo == NULL)
+    if (queue->tail == NULL)
     {
-        c->frente = nuevo;
-        c->fondo = nuevo;
+        queue->head = new_node;
+        queue->tail = new_node;
     }
     else
     {
-        c->fondo->sig = nuevo;
-        c->fondo = nuevo;
+        queue->tail->sig = new_node;
+        queue->tail = new_node;
     }
 
-    c->tam++;
+    queue->size++;
     return 1;
 }
 
-int primeroCola(const TCola *c, PID *valor)
+int queue_peek(const queue_t *queue, process_id_t *value)
 {
-    if (esColaVacia(c))
+    if (queue_is_empty(queue))
     {
         return 0;
     }
 
-    if (valor != NULL)
+    if (value != NULL)
     {
-        *valor = c->frente->valor;
+        *value = queue->head->value;
     }
     return 1;
 }
 
-int desencolar(TCola *c, PID *valor)
+int queue_dequeue(queue_t *queue, process_id_t *value)
 {
-    NodoCola *tmp;
+    queue_node_t *tmp;
 
-    if (esColaVacia(c))
+    if (queue_is_empty(queue))
     {
         return 0;
     }
 
-    tmp = c->frente;
-    if (valor != NULL)
+    tmp = queue->head;
+    if (value != NULL)
     {
-        *valor = tmp->valor;
+        *value = tmp->value;
     }
 
-    c->frente = tmp->sig;
-    if (c->frente == NULL)
+    queue->head = tmp->sig;
+    if (queue->head == NULL)
     {
-        c->fondo = NULL;
+        queue->tail = NULL;
     }
 
     free(tmp);
-    c->tam--;
+    queue->size--;
     return 1;
 }
 
-void liberarCola(TCola *c)
+void queue_free(queue_t *queue)
 {
-    PID dummy;
-    while (desencolar(c, &dummy))
+
+    while (queue_dequeue(queue, NULL))
     {
     }
 }

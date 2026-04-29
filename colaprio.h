@@ -3,22 +3,22 @@
 
 #include "cola.h"
 
-#define NUM_COLAS_PRIO 100
+#define PRIORITY_QUEUE_COUNT 100
 
 typedef struct colaindividual
 {
     int prioridad;
-    TCola cola;
-} ColaIndividual;
+    queue_t queue;
+} priority_queue_bucket_t;
 
-typedef ColaIndividual *TCOLAPRIO;
+typedef priority_queue_bucket_t *priority_queue_t;
 
-TCOLAPRIO crearColaPrio(const int prioridades[NUM_COLAS_PRIO]);
-void destruirColaPrio(TCOLAPRIO *tcp);
+priority_queue_t priority_queue_create(const int priorities[PRIORITY_QUEUE_COUNT]);
+void priority_queue_destroy(priority_queue_t *priority_queue);
 
-int EsColaVaciaPrio(TCOLAPRIO tcp);
-int primeroColaPrio(TCOLAPRIO tcp, PID *proceso);
-int eliminarColaPrio(TCOLAPRIO tcp);
-int anadirColaPrio(TCOLAPRIO tcp, PID proceso, int prioridad);
+int priority_queue_is_empty(priority_queue_t priority_queue);
+int priority_queue_peek(priority_queue_t priority_queue, process_id_t *process);
+int priority_queue_pop(priority_queue_t priority_queue);
+int priority_queue_push(priority_queue_t priority_queue, process_id_t process, int priority);
 
 #endif
