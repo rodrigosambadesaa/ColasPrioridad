@@ -1,5 +1,5 @@
-# PDF del enunciado
-ejerciciomuycomplejo.pdf
+# PDFs locales no versionados
+*.pdf
 
 # Binarios y objetos C
 app

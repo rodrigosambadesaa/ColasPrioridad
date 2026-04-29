@@ -1,7 +1,7 @@
 # Cola de prioridad en C (dockerizada)
 
 Implementacion de una biblioteca de cola por prioridad basada en 100 colas contiguas en memoria,
-segun el enunciado del PDF `ejerciciomuycomplejo.pdf`.
+segun el enunciado del ejercicio.
 
 ## Operaciones implementadas
 
