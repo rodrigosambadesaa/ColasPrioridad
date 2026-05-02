@@ -45,6 +45,83 @@ static void run_demo_mode(priority_queue_t priority_queue)
     }
 }
 
+static int expect_next_process(priority_queue_t priority_queue, process_id_t expected)
+{
+    process_id_t current;
+
+    if (!priority_queue_peek(priority_queue, &current))
+    {
+        printf("FALLO: se esperaba %ld pero la cola estaba vacia.\n", expected);
+        return 0;
+    }
+
+    if (current != expected)
+    {
+        printf("FALLO: se esperaba %ld y se obtuvo %ld.\n", expected, current);
+        return 0;
+    }
+
+    if (!priority_queue_pop(priority_queue))
+    {
+        printf("FALLO: no se pudo extraer el proceso %ld.\n", expected);
+        return 0;
+    }
+
+    return 1;
+}
+
+static int run_self_test(priority_queue_t priority_queue)
+{
+    process_id_t process;
+
+    /* Verifica prioridad global y FIFO dentro de la misma prioridad. */
+    if (!priority_queue_push(priority_queue, 10, 20) ||
+        !priority_queue_push(priority_queue, 11, 20) ||
+        !priority_queue_push(priority_queue, 99, 90) ||
+        !priority_queue_push(priority_queue, 33, 50) ||
+        !priority_queue_push(priority_queue, 34, 50))
+    {
+        printf("FALLO: no se pudieron insertar datos de prueba.\n");
+        return 0;
+    }
+
+    if (!expect_next_process(priority_queue, 99))
+    {
+        return 0;
+    }
+    if (!expect_next_process(priority_queue, 33))
+    {
+        return 0;
+    }
+    if (!expect_next_process(priority_queue, 34))
+    {
+        return 0;
+    }
+    if (!expect_next_process(priority_queue, 10))
+    {
+        return 0;
+    }
+    if (!expect_next_process(priority_queue, 11))
+    {
+        return 0;
+    }
+
+    if (priority_queue_peek(priority_queue, &process) || !priority_queue_is_empty(priority_queue))
+    {
+        printf("FALLO: la cola deberia estar vacia tras extraer todos los procesos.\n");
+        return 0;
+    }
+
+    if (priority_queue_push(priority_queue, 1234, 999) != 0)
+    {
+        printf("FALLO: se inserto una prioridad inexistente.\n");
+        return 0;
+    }
+
+    printf("OK: pruebas de TColaPrio superadas.\n");
+    return 1;
+}
+
 static void print_console_menu(void)
 {
     printf("\n=== Cola de Prioridad (modo consola) ===\n");
@@ -180,6 +257,12 @@ int main(int argc, char **argv)
     if (argc > 1 && strcmp(argv[1], "--console") == 0)
     {
         run_console_mode(priority_queue);
+    }
+    else if (argc > 1 && strcmp(argv[1], "--test") == 0)
+    {
+        int ok = run_self_test(priority_queue);
+        priority_queue_destroy(&priority_queue);
+        return ok ? 0 : 1;
     }
     else
     {
